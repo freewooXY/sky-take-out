@@ -76,6 +76,11 @@ public class EmployeeController {
         return Result.success();
     }
 
+    /**
+     * 注册
+     * @param employeeDTO
+     * @return
+     */
     @PostMapping
     @ApiOperation("员工注册")
     public Result<String> regist(@RequestBody EmployeeDTO employeeDTO) {
@@ -86,6 +91,11 @@ public class EmployeeController {
         return Result.success();
     }
 
+    /**
+     * 分页查询
+     * @param employeePageQueryDTO
+     * @return
+     */
     @GetMapping("/page")
     @ApiOperation("分页查询员工")
     public Result<PageResult> pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
@@ -94,5 +104,21 @@ public class EmployeeController {
         PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
 
         return Result.success(pageResult);
+    }
+
+    /**
+     * 启用或者禁用账号
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用或者禁用员工账号")
+    public Result changeStatus(@PathVariable("status") Integer status, Long id) {
+        log.info("启用或者禁用账号：{} {}", id, status);
+
+        employeeService.changeStatus(id, status);
+
+        return Result.success();
     }
 }
