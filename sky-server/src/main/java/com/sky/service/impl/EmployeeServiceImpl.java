@@ -125,4 +125,34 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 使用一个更加通用的update方法
         employeeMapper.update(employee);
     }
+
+    /**
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    public Employee queryById(Long id) {
+        Employee employee = employeeMapper.queryById(id);
+
+        // 将密码混淆，加强安全性
+        employee.setPassword("***********");
+
+        return employee;
+    }
+
+    /**
+     * 编辑修改员工信息
+     * @param employeeDTO
+     */
+    public void updateEmployee(EmployeeDTO employeeDTO) {
+        // 创建一个员工对象用于DAO访问
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+
+        // 设置员工的更新时间以及修改人
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+
+        employeeMapper.update(employee);
+    }
 }
