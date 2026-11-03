@@ -9,4 +9,53 @@
             VALUE (#{name}, #{categoryId}, #{price}, #{image}, #{description}, #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
 
+    <resultMap id="dishVO" type="com.sky.vo.DishVO">
+        <id property="id" column="dish_id" />
+        <result property="name" column="dish_name" />
+        <result property="categoryId" column="dish_category_id"/>
+        <result property="price" column="dish_price"/>
+        <result property="image" column="dish_image"/>
+        <result property="description" column="dish_description"/>
+        <result property="status" column="dish_status"/>
+        <result property="updateTime" column="dish_update_time"/>
+        <result property="categoryName" column="category_name"/>
+        <collection property="flavors" ofType="DishFlavor" select="queryDishFlavor" column="dish_id">
+            <id property="id" column="id"/>
+            <result property="dishId" column="dish_id"/>
+            <result property="name" column="name"/>
+            <result property="value" column="value"/>
+        </collection>
+    </resultMap>
+
+    <select id="queryDishFlavor" resultType="DishFlavor">
+        select * from dish_flavor where dish_id = #{dish_id}
+    </select>
+
+    <select id="pageQuery" parameterType="com.sky.dto.DishPageQueryDTO" resultMap="dishVO">
+        select
+            d.id dish_id,
+            d.name dish_name,
+            d.category_id dish_category_id,
+            d.price dish_price,
+            d.image dish_image,
+            d.description dish_description,
+            d.status dish_status,
+            d.update_time dish_update_time,
+            c.name category_name
+        from dish d
+        left outer join category c on d.category_id = c.id
+        <where>
+            <if test="name!=null">
+                and d.name like concat('%', #{name}, '%')
+            </if>
+            <if test="categoryId!=null">
+                and d.category_id = #{categoryId}
+            </if>
+            <if test="status!=null">
+                and d.status = #{status}
+            </if>
+        </where>
+        order by d.create_time desc
+    </select>
+
 </mapper>
