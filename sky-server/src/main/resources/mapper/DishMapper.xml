@@ -66,4 +66,48 @@
         </foreach>
     </delete>
     
+    <select id="getByIdWithFlavor" resultMap="dishVO">
+        select
+            d.id dish_id,
+            d.name dish_name,
+            d.category_id dish_category_id,
+            d.price dish_price,
+            d.image dish_image,
+            d.description dish_description,
+            d.status dish_status,
+            d.update_time dish_update_time,
+            c.name category_name
+        from dish d
+                 left outer join category c on d.category_id = c.id
+        where d.id = #{id}
+    </select>
+
+    <update id="update" parameterType="dish">
+        update dish
+        <set>
+            <if test="name!=null">
+                name = #{name},
+            </if>
+            <if test="categoryId!=null">
+                category_id = #{categoryId},
+            </if>
+            <if test="price!=null">
+                price = #{price},
+            </if>
+            <if test="image!=null">
+                image = #{image},
+            </if>
+            <if test="description!=null">
+                `description` = #{description},
+            </if>
+            <if test="updateTime!=null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUser!=null">
+                update_user = #{updateUser},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
 </mapper>

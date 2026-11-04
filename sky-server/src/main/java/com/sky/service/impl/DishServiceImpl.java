@@ -2,12 +2,14 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.annotation.AutoFill;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.enumeration.OperationType;
 import com.sky.exception.DeletionNotAllowedException;
 import com.sky.exception.SetmealEnableFailedException;
 import com.sky.mapper.DishFlavorMapper;
@@ -106,5 +108,41 @@ public class DishServiceImpl implements DishService {
         dishMapper.deleteBatchById(ids);
         // 删除口味数据
         dishFlavorMapper.deleteBatchByDishId(ids);
+    }
+
+    /**
+     * 通过id查询菜品
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+        return dishMapper.getByIdWithFlavor(id);
+    }
+
+    /**
+     * 修改菜品
+     *
+     * @param dishDTO
+     */
+    @Override
+    @Transactional
+    public void updateWithFlavor(DishDTO dishDTO) {
+        // 修改口味，先删除原有的数据，再插入新的数据
+        dishFlavorMapper.deleteByDishId(dishDTO.getId());
+        // 口味表要有口味
+        if (dishDTO.getFlavors() != null && !dishDTO.getFlavors().isEmpty()) {
+            for (DishFlavor dishFlavor : dishDTO.getFlavors()) {
+                // 设置口味的关联菜品id
+                dishFlavor.setDishId(dishDTO.getId());
+            }
+            dishFlavorMapper.insertBatch(dishDTO.getFlavors());
+        }
+
+        // 修改菜品信息
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        dishMapper.update(dish);
     }
 }
