@@ -70,6 +70,11 @@ public class DishController {
         return Result.success();
     }
 
+    /**
+     * 通过id查询菜品
+     * @param id
+     * @return
+     */
     @GetMapping("/{id}")
     @ApiOperation("通过id查询菜品")
     public Result<DishVO> getById(@PathVariable Long id) {
@@ -80,12 +85,36 @@ public class DishController {
         return Result.success(dishVO);
     }
 
+    /**
+     * 修改菜品
+     * @param dishDTO
+     * @return
+     */
     @PutMapping
     @ApiOperation("修改菜品")
     public Result update(@RequestBody DishDTO dishDTO) {
         log.info("修改菜品：{}", dishDTO);
 
         dishService.updateWithFlavor(dishDTO);
+
+        return Result.success();
+    }
+
+    /**
+     * 起售或者停售菜品
+     * @param id
+     * @param status
+     * @return
+     */
+    @ApiOperation("起售或者停售菜品")
+    @PostMapping("status/{status}")
+    public Result chageStatus(@PathVariable Integer status, Long id) {
+        DishDTO dishDTO = new DishDTO();
+        dishDTO.setStatus(status);
+        dishDTO.setId(id);
+        log.info("起售或者停售菜品：{}", dishDTO);
+
+        dishService.changeStatus(dishDTO);
 
         return Result.success();
     }

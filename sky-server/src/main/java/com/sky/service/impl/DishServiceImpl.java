@@ -145,4 +145,16 @@ public class DishServiceImpl implements DishService {
         BeanUtils.copyProperties(dishDTO, dish);
         dishMapper.update(dish);
     }
+
+    /**
+     * 起售或者停售菜品
+     *
+     * @param dishDTO
+     */
+    @Override
+    public void changeStatus(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        dishMapper.update(dish);
+    }
 }
