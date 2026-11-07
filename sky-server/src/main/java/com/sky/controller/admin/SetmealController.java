@@ -2,6 +2,7 @@ package com.sky.controller.admin;
 
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Setmeal;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.SetmealService;
@@ -62,10 +63,28 @@ public class SetmealController {
      */
     @ApiOperation("批量删除套餐")
     @DeleteMapping
-    public Result delete(@RequestParam List<Integer> ids) {
+    public Result delete(@RequestParam List<Long> ids) {
         log.info("批量删除套餐：{}", ids);
 
         setmealService.deleteBatch(ids);
+
+        return Result.success();
+    }
+
+    /**
+     * 套餐起售和停售
+     * @return
+     */
+    @ApiOperation("套餐起售和停售")
+    @PostMapping("/status/{status}")
+    public Result changeStatus(@PathVariable Integer status, Long id) {
+        log.info("套餐起售和停售：{} {}", status, id);
+
+        Setmeal setmeal = new Setmeal();
+        setmeal.setStatus(status);
+        setmeal.setId(id);
+
+        setmealService.changeStatus(setmeal);
 
         return Result.success();
     }

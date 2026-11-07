@@ -78,12 +78,22 @@ public class SetmealServiceImpl implements SetmealService {
      */
     @Override
     @Transactional
-    public void deleteBatch(List<Integer> ids) {
+    public void deleteBatch(List<Long> ids) {
         // 需要删除套餐以及关联的套餐菜品
         // 批量删除套餐
         setmealMapper.deleteBatch(ids);
 
         // 批量删除套餐关联菜品
         setmealDishMapper.deleteBatch(ids);
+    }
+
+    /**
+     * 套餐起售和停售
+     *
+     * @param setmeal
+     */
+    @Override
+    public void changeStatus(Setmeal setmeal) {
+        setmealMapper.update(setmeal);
     }
 }
