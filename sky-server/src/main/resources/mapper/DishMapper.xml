@@ -113,4 +113,16 @@
         where id = #{id}
     </update>
 
+    <select id="list" parameterType="dish" resultType="dish">
+        select * from dish
+        <where>
+            <if test="id!=null">
+                and id = #{id}
+            </if>
+            <if test="categoryId!=null">
+                and category_id = #{categoryId}
+            </if>
+        </where>
+    </select>
+    
 </mapper>
