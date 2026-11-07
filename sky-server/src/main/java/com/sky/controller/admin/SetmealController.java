@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * 套餐相关接口
  */
-@Api("套餐相关接口")
+@Api(tags = "套餐相关接口")
 @Slf4j
 @RequestMapping("/admin/setmeal")
 @RestController
@@ -103,5 +103,20 @@ public class SetmealController {
         SetmealVO setmealVO = setmealService.getByIdWithDish(id);
 
         return Result.success(setmealVO);
+    }
+
+    /**
+     * 修改套餐
+     * @param setmealDTO
+     * @return
+     */
+    @ApiOperation("修改套餐")
+    @PutMapping
+    public Result update(@RequestBody SetmealDTO setmealDTO) {
+        log.info("修改套餐：{}", setmealDTO);
+
+        setmealService.updateWithDish(setmealDTO);
+
+        return Result.success();
     }
 }

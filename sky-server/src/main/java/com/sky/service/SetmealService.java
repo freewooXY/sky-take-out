@@ -41,4 +41,10 @@ public interface SetmealService {
      * @return
      */
     SetmealVO getByIdWithDish(Long id);
+
+    /**
+     * 修改套餐以及关联的菜品
+     * @param setmealDTO
+     */
+    void updateWithDish(SetmealDTO setmealDTO);
 }

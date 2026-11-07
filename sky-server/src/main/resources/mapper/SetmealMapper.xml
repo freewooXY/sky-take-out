@@ -50,7 +50,7 @@
                 status = #{status},
             </if>
             <if test="description!=null">
-                description = #{description},
+                `description` = #{description},
             </if>
             <if test="image!=null">
                 image = #{image},
