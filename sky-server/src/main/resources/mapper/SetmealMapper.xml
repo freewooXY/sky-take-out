@@ -64,5 +64,45 @@
         </set>
         where id = #{id}
     </update>
+
+    <resultMap id="setmealVO" type="com.sky.vo.SetmealVO">
+        <id column="setmealId" property="id" />
+        <result column="categoryId" property="categoryId"/>
+        <result column="setmealName" property="name"/>
+        <result column="setmealPrice" property="price"/>
+        <result column="setmealStatus" property="status"/>
+        <result column="setmealDescription" property="description"/>
+        <result column="setmealImage" property="image"/>
+        <result column="setmealUpdateTime" property="updateTime"/>
+        <result column="categoryName" property="categoryName"/>
+        <collection property="setmealDishes" select="getSetmealDishes" ofType="setmealDish" column="setmealId">
+            <id column="id" property="id"/>
+            <result column="setmeal_id" property="setmealId"/>
+            <result column="dish_id" property="dishId"/>
+            <result column="name" property="name"/>
+            <result column="price" property="price"/>
+            <result column="copies" property="copies"/>
+        </collection>
+    </resultMap>
+
+    <select id="getSetmealDishes" parameterType="long" resultType="setmealDish">
+        select * from setmeal_dish where setmeal_id = #{id}
+    </select>
+
+    <select id="getByIdWithDish" parameterType="long" resultMap="setmealVO">
+        select s.id setmealId,
+               s.category_id categoryId,
+               s.name setmealName,
+               s.price setmealPrice,
+               s.status setmealStatus,
+               s.description setmealDescription,
+               s.image setmealImage,
+               s.update_time setmealUpdateTime,
+               c.name categoryName
+        from setmeal s
+        left outer join category c on c.id = s.category_id
+        where s.id = #{id}
+
+    </select>
     
 </mapper>
