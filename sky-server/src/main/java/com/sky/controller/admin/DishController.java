@@ -11,9 +11,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 菜品相关接口
@@ -27,6 +29,9 @@ public class DishController {
     @Autowired
     private DishService dishService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 新增菜品
      * @param dishDTO
@@ -38,6 +43,9 @@ public class DishController {
         log.info("新增菜品：{}", dishDTO);
 
         dishService.createWithFlavor(dishDTO);
+
+        // 清理缓存数据
+        cleanCache("dish_" +  dishDTO.getCategoryId());
 
         return Result.success();
     }
@@ -67,6 +75,11 @@ public class DishController {
         log.info("批量删除菜品：{}", ids);
 
         dishService.deleteBatch(ids);
+
+        /* 为了避免通过查询数据库获取哪一些分类收到了影响
+         直接使用比较大粒度的清除缓存操作，清除全部缓存
+         */
+        cleanCache("dish_*");
 
         return Result.success();
     }
@@ -98,6 +111,13 @@ public class DishController {
 
         dishService.updateWithFlavor(dishDTO);
 
+        /*
+            修改菜品可能没有修改分类，也有可能修改了分类。
+            有可能影响一个或者两个分类。
+            在这里不将代码复杂化，直接使用粗粒度操作，删除所有的缓存数据
+         */
+        cleanCache("dish_*");
+
         return Result.success();
     }
 
@@ -117,6 +137,11 @@ public class DishController {
 
         dishService.changeStatus(dishDTO);
 
+        /*
+            同样的理由进行一个粗粒度操作
+         */
+        cleanCache("dish_*");
+
         return Result.success();
     }
 
@@ -131,5 +156,9 @@ public class DishController {
         List<Dish> dishList = dishService.getByCategoryId(categoryId);
 
         return Result.success(dishList);
+    }
+
+    private void cleanCache(String pattern) {
+        redisTemplate.delete(redisTemplate.keys(pattern));
     }
 }
