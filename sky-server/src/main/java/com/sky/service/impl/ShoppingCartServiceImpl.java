@@ -82,4 +82,39 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         shoppingCart.setUserId(BaseContext.getCurrentId());
         return shoppingCartMapper.list(shoppingCart);
     }
+
+    /**
+     * 清空购物车
+     */
+    @Override
+    public void cleanAll() {
+        shoppingCartMapper.cleanAll(BaseContext.getCurrentId());
+    }
+
+    /**
+     * 减少购物车
+     *
+     * @param shoppingCartDTO
+     */
+    @Override
+    public void subShoppingCart(ShoppingCartDTO shoppingCartDTO) {
+        // 查询购物车之中是否存在
+        ShoppingCart shoppingCart = new ShoppingCart();
+        BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
+        shoppingCart.setUserId(BaseContext.getCurrentId());
+        List<ShoppingCart> cartList = shoppingCartMapper.list(shoppingCart);
+
+        // 查询的了购物车信息
+        if (cartList != null && cartList.size() > 0) {
+            for (ShoppingCart cartItem : cartList) {
+                cartItem.setNumber(cartItem.getNumber() - 1);
+                // 如果数量为0则直接删除
+                if (cartItem.getNumber() <= 0) {
+                    shoppingCartMapper.delete(cartItem);
+                } else {
+                    shoppingCartMapper.addOrSub(cartItem);
+                }
+            }
+        }
+    }
 }
