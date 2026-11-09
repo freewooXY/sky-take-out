@@ -35,4 +35,11 @@ public interface OrderMapper {
      * @return
      */
     Page<OrderVO> pageQueryWithCondition(Orders order);
+
+    /**
+     * 查询页面详情
+     * @param orders
+     * @return
+     */
+    OrderVO orderDetail(Orders orders);
 }

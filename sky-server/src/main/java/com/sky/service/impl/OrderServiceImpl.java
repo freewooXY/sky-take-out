@@ -185,4 +185,14 @@ public class OrderServiceImpl implements OrderService {
 
         return result;
     }
+
+    /**
+     * 查询订单详情
+     * @param orders
+     * @return
+     */
+    @Override
+    public OrderVO orderDetail(Orders orders) {
+        return orderMapper.orderDetail(orders);
+    }
 }

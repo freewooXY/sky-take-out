@@ -119,4 +119,34 @@
         order by order_time desc
     </select>
 
+    <select id="orderDetail" resultMap="ordersVO">
+        select
+            id orderId,
+            number orderNumber,
+            status orderStatus,
+            user_id orderUserId,
+            address_book_id addressBookId,
+            order_time orderTime,
+            checkout_time checkoutTime,
+            pay_method payMethod,
+            pay_status payStatus,
+            amount,
+            remark,
+            user_name userName,
+            phone,
+            address,
+            consignee,
+            cancel_reason cancelReason,
+            rejection_reason rejectionReason,
+            cancel_time cancelTime,
+            estimated_delivery_time estimatedDeliveryTime,
+            delivery_status deliveryStatus,
+            delivery_time deliveryTime,
+            pack_amount packAmount,
+            tableware_number tablewareNumber,
+            tableware_status tablewareStatus
+        from orders
+        where id = #{id}
+    </select>
+    
 </mapper>
