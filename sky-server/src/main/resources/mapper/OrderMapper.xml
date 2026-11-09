@@ -86,67 +86,67 @@
 
     <select id="pageQueryWithCondition" parameterType="orders" resultMap="ordersVO">
         select
-            id orderId,
-            number orderNumber,
-            status orderStatus,
-            user_id orderUserId,
-            address_book_id addressBookId,
-            order_time orderTime,
-            checkout_time checkoutTime,
-            pay_method payMethod,
-            pay_status payStatus,
-            amount,
-            remark,
-            user_name userName,
-            phone,
-            address,
-            consignee,
-            cancel_reason cancelReason,
-            rejection_reason rejectionReason,
-            cancel_time cancelTime,
-            estimated_delivery_time estimatedDeliveryTime,
-            delivery_status deliveryStatus,
-            delivery_time deliveryTime,
-            pack_amount packAmount,
-            tableware_number tablewareNumber,
-            tableware_status tablewareStatus
-        from orders
+            o.id orderId,
+            o.number orderNumber,
+            o.status orderStatus,
+            o.user_id orderUserId,
+            o.address_book_id addressBookId,
+            o.order_time orderTime,
+            o.checkout_time checkoutTime,
+            o.pay_method payMethod,
+            o.pay_status payStatus,
+            o.amount,
+            o.remark,
+            o.user_name userName,
+            o.phone,
+            a.detail address,
+            o.consignee,
+            o.cancel_reason cancelReason,
+            o.rejection_reason rejectionReason,
+            o.cancel_time cancelTime,
+            o.estimated_delivery_time estimatedDeliveryTime,
+            o.delivery_status deliveryStatus,
+            o.delivery_time deliveryTime,
+            o.pack_amount packAmount,
+            o.tableware_number tablewareNumber,
+            o.tableware_status tablewareStatus
+        from orders o left outer join address_book a on a.id = o.address_book_id
         <where>
             <if test="status!=null">
-               status = #{status}
+               o.status = #{status}
             </if>
         </where>
-        order by order_time desc
+        order by o.order_time desc
     </select>
 
     <select id="orderDetail" resultMap="ordersVO">
         select
-            id orderId,
-            number orderNumber,
-            status orderStatus,
-            user_id orderUserId,
-            address_book_id addressBookId,
-            order_time orderTime,
-            checkout_time checkoutTime,
-            pay_method payMethod,
-            pay_status payStatus,
-            amount,
-            remark,
-            user_name userName,
-            phone,
-            address,
-            consignee,
-            cancel_reason cancelReason,
-            rejection_reason rejectionReason,
-            cancel_time cancelTime,
-            estimated_delivery_time estimatedDeliveryTime,
-            delivery_status deliveryStatus,
-            delivery_time deliveryTime,
-            pack_amount packAmount,
-            tableware_number tablewareNumber,
-            tableware_status tablewareStatus
-        from orders
-        where id = #{id}
+            o.id orderId,
+            o.number orderNumber,
+            o.status orderStatus,
+            o.user_id orderUserId,
+            o.address_book_id addressBookId,
+            o.order_time orderTime,
+            o.checkout_time checkoutTime,
+            o.pay_method payMethod,
+            o.pay_status payStatus,
+            o.amount,
+            o.remark,
+            o.user_name userName,
+            o.phone,
+            a.detail address,
+            o.consignee,
+            o.cancel_reason cancelReason,
+            o.rejection_reason rejectionReason,
+            o.cancel_time cancelTime,
+            o.estimated_delivery_time estimatedDeliveryTime,
+            o.delivery_status deliveryStatus,
+            o.delivery_time deliveryTime,
+            o.pack_amount packAmount,
+            o.tableware_number tablewareNumber,
+            o.tableware_status tablewareStatus
+        from orders o left outer join address_book a on a.id = o.address_book_id
+        where o.id = #{id}
     </select>
     
 </mapper>
