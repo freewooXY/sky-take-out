@@ -1,6 +1,8 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
 import com.sky.entity.Orders;
+import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -27,4 +29,10 @@ public interface OrderMapper {
      */
     void update(Orders orders);
 
+    /**
+     * 分页查询历史订单
+     * @param order
+     * @return
+     */
+    Page<OrderVO> pageQueryWithCondition(Orders order);
 }

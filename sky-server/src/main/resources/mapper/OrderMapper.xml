@@ -42,5 +42,81 @@
         where id = #{id}
     </update>
 
+    <resultMap id="ordersVO" type="com.sky.vo.OrderVO">
+        <id property="id" column="orderId"/>
+        <result property="number" column="orderNumber"/>
+        <result property="status" column="orderStatus"/>
+        <result property="userId" column="orderUserId"/>
+        <result property="addressBookId" column="addressBookId"/>
+        <result property="orderTime" column="orderTime"/>
+        <result property="checkoutTime" column="checkoutTime"/>
+        <result property="payMethod" column="payMethod"/>
+        <result property="payStatus" column="payStatus"/>
+        <result property="amount" column="amount"/>
+        <result property="remark" column="remark"/>
+        <result property="userName" column="userName"/>
+        <result property="phone" column="phone"/>
+        <result property="address" column="address"/>
+        <result property="consignee" column="consignee"/>
+        <result property="cancelReason" column="cancelReason"/>
+        <result property="rejectionReason" column="rejectionReason"/>
+        <result property="cancelTime" column="cancelTime"/>
+        <result property="estimatedDeliveryTime" column="estimatedDeliveryTime"/>
+        <result property="deliveryStatus" column="deliveryStatus"/>
+        <result property="deliveryTime" column="deliveryTime"/>
+        <result property="packAmount" column="packAmount"/>
+        <result property="tablewareNumber" column="tablewareNumber"/>
+        <result property="tablewareStatus" column="tablewareStatus"/>
+        <collection property="orderDetailList" column="orderId" select="selectDetail" ofType="orderDetail">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="orderId" column="order_id"/>
+            <result property="dishId" column="dish_id"/>
+            <result property="setmealId" column="setmeal_id"/>
+            <result property="dishFlavor" column="dish_flavor"/>
+            <result property="number" column="number"/>
+            <result property="amount" column="amount"/>
+            <result property="image" column="image"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectDetail" resultType="orderDetail">
+        select * from order_detail where order_id = #{orderId}
+    </select>
+
+    <select id="pageQueryWithCondition" parameterType="orders" resultMap="ordersVO">
+        select
+            id orderId,
+            number orderNumber,
+            status orderStatus,
+            user_id orderUserId,
+            address_book_id addressBookId,
+            order_time orderTime,
+            checkout_time checkoutTime,
+            pay_method payMethod,
+            pay_status payStatus,
+            amount,
+            remark,
+            user_name userName,
+            phone,
+            address,
+            consignee,
+            cancel_reason cancelReason,
+            rejection_reason rejectionReason,
+            cancel_time cancelTime,
+            estimated_delivery_time estimatedDeliveryTime,
+            delivery_status deliveryStatus,
+            delivery_time deliveryTime,
+            pack_amount packAmount,
+            tableware_number tablewareNumber,
+            tableware_status tablewareStatus
+        from orders
+        <where>
+            <if test="status!=null">
+               status = #{status}
+            </if>
+        </where>
+        order by order_time desc
+    </select>
 
 </mapper>
