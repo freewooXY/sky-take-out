@@ -84,7 +84,7 @@
         select * from order_detail where order_id = #{orderId}
     </select>
 
-    <select id="pageQueryWithCondition" parameterType="orders" resultMap="ordersVO">
+    <select id="pageQueryWithCondition" parameterType="com.sky.dto.OrdersPageQueryDTO" resultMap="ordersVO">
         select
             o.id orderId,
             o.number orderNumber,
@@ -113,7 +113,19 @@
         from orders o left outer join address_book a on a.id = o.address_book_id
         <where>
             <if test="status!=null">
-               o.status = #{status}
+               and o.status = #{status}
+            </if>
+            <if test="number!=null">
+                and o.number = #{number}
+            </if>
+            <if test="phone!=null">
+                and o.phone = #{phone}
+            </if>
+            <if test="userId!=null">
+                and o.user_id = #{userId}
+            </if>
+            <if test="beginTime!=null and endTime!=null">
+                and o.order_time between#{beginTime} and #{endTime}
             </if>
         </where>
         order by o.order_time desc

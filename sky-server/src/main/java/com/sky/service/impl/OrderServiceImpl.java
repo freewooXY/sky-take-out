@@ -173,10 +173,7 @@ public class OrderServiceImpl implements OrderService {
         // 设置分页查询的页码和页面大小
         PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
 
-        Orders order = new Orders();
-        BeanUtils.copyProperties(ordersPageQueryDTO, order);
-
-        Page<OrderVO> page = orderMapper.pageQueryWithCondition(order);
+        Page<OrderVO> page = orderMapper.pageQueryWithCondition(ordersPageQueryDTO);
 
         PageResult result = new PageResult(page.getTotal(), page.getResult());
 
