@@ -5,14 +5,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersPageQueryDTO;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
+import com.sky.properties.MockProperties;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
@@ -35,6 +34,9 @@ import java.util.Map;
 @Service
 @Slf4j
 public class OrderServiceImpl implements OrderService {
+
+    @Autowired
+    private MockProperties mockProperties;
 
     @Autowired
     private OrderMapper orderMapper;
@@ -215,6 +217,9 @@ public class OrderServiceImpl implements OrderService {
             JSONObject refundResponse;
             try {
                 refundResponse = refund(orders);
+                if (refundResponse.getString("status").equals("ABNORMAL")) {
+                    throw new RuntimeException();
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -301,6 +306,51 @@ public class OrderServiceImpl implements OrderService {
                 orderMapper.getCountByStatus(Orders.DELIVERY_IN_PROGRESS));
 
         return orderStatisticsVO;
+    }
+
+    /**
+     * 商户接单
+     * @param id
+     */
+    @Override
+    public void confirm(Long id) {
+        Orders orders = orderMapper.getById(id);
+        orders.setStatus(Orders.CONFIRMED);
+
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 商户拒单
+     * @param ordersRejectionDTO
+     */
+    @Override
+    public void rejection(OrdersRejectionDTO ordersRejectionDTO) {
+        // 更新订单状态
+        Orders orders = orderMapper.getById(ordersRejectionDTO.getId());
+
+        // 如果订单已支付则发起退款请求
+        if (orders.getPayStatus() == Orders.PAID && !mockProperties.isPayMock()) {
+            // 向微信支付平台发起退款请求
+            JSONObject refundResponse;
+            try {
+                refundResponse = refund(orders);
+                if (refundResponse.getString("status").equals("ABNORMAL")) {
+                    throw new RuntimeException();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            orders.setStatus(Orders.REFUND);
+        }
+
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelTime(LocalDateTime.now());
+        orders.setCancelReason(ordersRejectionDTO.getRejectionReason());
+        orderMapper.update(orders);
+
+
     }
 
     private void setOrderFields(Orders orders) {
