@@ -17,6 +17,7 @@ import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -282,6 +284,23 @@ public class OrderServiceImpl implements OrderService {
         // 修改订单详情订单号
         orderDetailList.forEach( (orderDetail) -> {orderDetail.setOrderId(orders.getId());} );
         orderDetailMapper.insertBatch(orderDetailList);
+    }
+
+    /**
+     * 获取订单商户状态的数量
+     * @return
+     */
+    @Override
+    public OrderStatisticsVO getStatistics() {
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        orderStatisticsVO.setConfirmed(
+                orderMapper.getCountByStatus(Orders.CONFIRMED));
+        orderStatisticsVO.setToBeConfirmed(
+                orderMapper.getCountByStatus(Orders.TO_BE_CONFIRMED));
+        orderStatisticsVO.setDeliveryInProgress(
+                orderMapper.getCountByStatus(Orders.DELIVERY_IN_PROGRESS));
+
+        return orderStatisticsVO;
     }
 
     private void setOrderFields(Orders orders) {
