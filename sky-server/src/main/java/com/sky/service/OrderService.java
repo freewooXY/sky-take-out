@@ -51,4 +51,16 @@ public interface OrderService {
      * @param id
      */
     void cancel(Long id);
+
+    /**
+     * 订单支付的mock接口
+     * @param ordersPaymentDTO
+     */
+    void paymentMock(OrdersPaymentDTO ordersPaymentDTO);
+
+    /**
+     * 再来一单
+     * @param id
+     */
+    void repetition(Long id);
 }

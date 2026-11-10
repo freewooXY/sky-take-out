@@ -83,10 +83,7 @@ public class OrderServiceImpl implements OrderService {
         // 向订单表插入一条数据
         Orders orders = new Orders();
         BeanUtils.copyProperties(ordersSubmitDTO, orders);
-        orders.setOrderTime(LocalDateTime.now()); // 设置订单时间
-        orders.setPayStatus(Orders.UN_PAID); // 设置支付状态
-        orders.setStatus(Orders.PENDING_PAYMENT); // 设置订单状态
-        orders.setNumber(String.valueOf(System.currentTimeMillis())); // 设置订单号
+        setOrderFields(orders);
         orders.setPhone(addressBook.getPhone()); // 设置电话
         orders.setConsignee(addressBook.getConsignee()); // 设置收货人
         orders.setUserId(BaseContext.getCurrentId()); // 设置用户id
@@ -206,5 +203,58 @@ public class OrderServiceImpl implements OrderService {
         orders.setId(id);
         orders.setStatus(Orders.CANCELLED);
         orderMapper.update(orders);
+    }
+
+    /**
+     * 订单支付的mock接口
+     * @param ordersPaymentDTO
+     */
+    @Override
+    public void paymentMock(OrdersPaymentDTO ordersPaymentDTO) {
+        paySuccess(ordersPaymentDTO.getOrderNumber());
+    }
+
+    /**
+     * 再来一单
+     *
+     * @param id
+     */
+    @Override
+    @Transactional
+    public void repetition(Long id) {
+        // 根据订单id查出之前的订单详细数据
+        Orders orders = orderMapper.getById(id);
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(id);
+
+        // 修改部分字段
+        setOrderFields(orders);
+
+        // 清除部分字段
+        clearOrderFields(orders);
+
+        // 插入订单
+        orderMapper.insert(orders);
+
+        // 修改订单详情订单号
+        orderDetailList.forEach( (orderDetail) -> {orderDetail.setOrderId(orders.getId());} );
+        orderDetailMapper.insertBatch(orderDetailList);
+    }
+
+    private void setOrderFields(Orders orders) {
+        orders.setOrderTime(LocalDateTime.now()); // 设置订单时间
+        orders.setPayStatus(Orders.UN_PAID); // 设置支付状态
+        orders.setStatus(Orders.PENDING_PAYMENT); // 设置订单状态
+        orders.setNumber(String.valueOf(System.currentTimeMillis())); // 设置订单号
+        orders.setPayMethod(Orders.WX_PAY); // 设置支付方式
+        orders.setDeliveryStatus(Orders.DELIVERY_NOW);
+    }
+
+    private void clearOrderFields(Orders orders) {
+        orders.setCheckoutTime(null);
+        orders.setCancelReason(null);
+        orders.setRejectionReason(null);
+        orders.setCancelTime(null);
+        orders.setEstimatedDeliveryTime(null);
+        orders.setDeliveryTime(null);
     }
 }

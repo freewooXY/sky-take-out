@@ -4,6 +4,7 @@ import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.Orders;
+import com.sky.properties.MockProperties;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
@@ -14,6 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/user/order")
@@ -21,6 +23,9 @@ import org.springframework.web.bind.annotation.*;
 @Api(tags = "订单相关接口")
 @Slf4j
 public class OrderController {
+
+    @Autowired
+    private MockProperties mockProperties;
 
     @Autowired
     private OrderService orderService;
@@ -52,10 +57,26 @@ public class OrderController {
     public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
         log.info("订单支付：{}", ordersPaymentDTO);
 
+        if (mockProperties.isPayMock()) {
+            return paymentMock(ordersPaymentDTO);
+        }
+
         OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
 
         log.info("生成预支付交易单：{}", orderPaymentVO);
         return Result.success(orderPaymentVO);
+    }
+
+    /**
+     * 订单支付模拟接口
+     * @return
+     */
+    public Result paymentMock(@RequestBody OrdersPaymentDTO ordersPaymentDTO) {
+        log.info("跳过微信支付，完成订单支付：{}", ordersPaymentDTO);
+
+        orderService.paymentMock(ordersPaymentDTO);
+
+        return Result.success();
     }
 
     /**
@@ -105,4 +126,17 @@ public class OrderController {
         return Result.success();
     }
 
+    /**
+     * 再来一单
+     * @return
+     */
+    @PostMapping("/repetition/{id}")
+    @ApiOperation("再来一单")
+    public Result repetition(@PathVariable Long id) {
+        log.info("再来一单：{}", id);
+
+        orderService.repetition(id);
+
+        return Result.success();
+    }
 }

@@ -42,4 +42,12 @@ public interface OrderMapper {
      * @return
      */
     OrderVO orderDetail(Orders orders);
+
+    /**
+     * 根据订单id获取订单
+     * @param id
+     * @return
+     */
+    @Select("select * from orders where id = #{id}")
+    Orders getById(Long id);
 }
