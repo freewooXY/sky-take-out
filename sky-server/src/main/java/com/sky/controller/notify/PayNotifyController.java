@@ -59,6 +59,26 @@ public class PayNotifyController {
     }
 
     /**
+     * 退款成功回调接口
+     * @param request
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping("/refundSuccess")
+    public void refundSuccessNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        // 读取数据
+        String body = readData(request);
+        log.info("退款成功回调：{}", body);
+
+        JSONObject jsonObject = JSON.parseObject(body);
+        String outTradeNo = jsonObject.getString("out_trade_no");
+
+        orderService.refundSuccess(outTradeNo);
+
+        responseToWeixin(response);
+    }
+
+    /**
      * 读取数据
      *
      * @param request

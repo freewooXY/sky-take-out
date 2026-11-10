@@ -33,6 +33,12 @@ public interface OrderService {
     void paySuccess(String outTradeNo);
 
     /**
+     * 退款成功，修改订单状态
+     * @param outTradeNo
+     */
+    void refundSuccess(String outTradeNo);
+
+    /**
      * 分页查询历史订单
      * @param ordersPageQueryDTO
      * @return
@@ -63,4 +69,10 @@ public interface OrderService {
      * @param id
      */
     void repetition(Long id);
+
+    /**
+     * 订单退款Mock接口
+     * @param id
+     */
+    void cancelMock(Long id);
 }

@@ -199,9 +199,56 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public void cancel(Long id) {
-        Orders orders = new Orders();
-        orders.setId(id);
+        // 查询订单数据，并且进行业务校验
+        Orders orders = orderMapper.getById(id);
+        if (orders  == null) {
+            // 订单不存在
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        } else if (orders.getStatus() == Orders.CANCELLED
+                || orders.getStatus() == Orders.COMPLETED) {
+            // 已完成和已取消的订单不能取消
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        // 如果订单已支付则发起退款请求
+        if (orders.getPayStatus() == Orders.PAID) {
+            // 向微信支付平台发起退款请求
+            JSONObject refundResponse;
+            try {
+                refundResponse = refund(orders);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         orders.setStatus(Orders.CANCELLED);
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 订单退款Mock接口
+     * @param id
+     */
+    @Override
+    public void cancelMock(Long id) {
+        Orders orders = orderMapper.getById(id);
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelTime(LocalDateTime.now());
+        if (orders.getPayStatus() == Orders.PAID) {
+            orders.setPayStatus(Orders.REFUND);
+        }
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 退款成功，修改订单状态
+     * @param outTradeNo
+     */
+    @Override
+    public void refundSuccess(String outTradeNo) {
+        Orders orders = orderMapper.getByNumber(outTradeNo);
+        orders.setPayStatus(Orders.REFUND);
         orderMapper.update(orders);
     }
 
@@ -256,5 +303,16 @@ public class OrderServiceImpl implements OrderService {
         orders.setCancelTime(null);
         orders.setEstimatedDeliveryTime(null);
         orders.setDeliveryTime(null);
+    }
+
+    private JSONObject refund(Orders orders) throws Exception {
+        String response = weChatPayUtil.refund(
+                orders.getNumber(),
+                String.valueOf(System.currentTimeMillis()),
+                orders.getAmount(),
+                orders.getAmount()
+        );
+
+        return JSONObject.parseObject(response);
     }
 }

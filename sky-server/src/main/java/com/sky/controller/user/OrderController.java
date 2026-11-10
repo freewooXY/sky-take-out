@@ -121,7 +121,19 @@ public class OrderController {
     public Result cancel(@PathVariable Long id) {
         log.info("取消订单：{}", id);
 
+        if (mockProperties.isPayMock()) {
+            return cancelMock(id);
+        }
+
         orderService.cancel(id);
+
+        return Result.success();
+    }
+
+    public Result cancelMock(Long id) {
+        log.info("跳过微信退款，直接退款成功：{}", id);
+
+        orderService.cancelMock(id);
 
         return Result.success();
     }
