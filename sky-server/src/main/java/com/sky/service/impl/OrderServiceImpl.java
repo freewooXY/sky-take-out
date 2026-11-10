@@ -329,21 +329,8 @@ public class OrderServiceImpl implements OrderService {
         // 更新订单状态
         Orders orders = orderMapper.getById(ordersRejectionDTO.getId());
 
-        // 如果订单已支付则发起退款请求
-        if (orders.getPayStatus() == Orders.PAID && !mockProperties.isPayMock()) {
-            // 向微信支付平台发起退款请求
-            JSONObject refundResponse;
-            try {
-                refundResponse = refund(orders);
-                if (refundResponse.getString("status").equals("ABNORMAL")) {
-                    throw new RuntimeException();
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            orders.setStatus(Orders.REFUND);
-        }
+        // 商家拒单退款
+        refundByAdmin(orders);
 
         orders.setStatus(Orders.CANCELLED);
         orders.setCancelTime(LocalDateTime.now());
@@ -351,6 +338,36 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
 
 
+    }
+
+    /**
+     * 商家取消订单
+     *
+     * @param ordersCancelDTO
+     */
+    @Override
+    public void cancelByAdmin(OrdersCancelDTO ordersCancelDTO) {
+        Orders orders = orderMapper.getById(ordersCancelDTO.getId());
+        orders.setCancelTime(LocalDateTime.now());
+        orders.setCancelReason(ordersCancelDTO.getCancelReason());
+        orders.setStatus(Orders.CANCELLED);
+
+        // 商家取消订单退款
+        refundByAdmin(orders);
+
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 指定订单号派送
+     * @param id
+     */
+    @Override
+    public void delivery(String id) {
+        Orders orders = orderMapper.getById(Long.parseLong(id));
+        // 将商品状态改为派送中
+        orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        orderMapper.update(orders);
     }
 
     private void setOrderFields(Orders orders) {
@@ -380,5 +397,23 @@ public class OrderServiceImpl implements OrderService {
         );
 
         return JSONObject.parseObject(response);
+    }
+
+    private void refundByAdmin(Orders orders) {
+        // 如果订单已支付则发起退款请求
+        if (orders.getPayStatus() == Orders.PAID && !mockProperties.isPayMock()) {
+            // 向微信支付平台发起退款请求
+            JSONObject refundResponse;
+            try {
+                refundResponse = refund(orders);
+                if (refundResponse.getString("status").equals("ABNORMAL")) {
+                    throw new RuntimeException();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            orders.setStatus(Orders.REFUND);
+        }
     }
 }
