@@ -8,6 +8,8 @@ import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Mapper
@@ -61,4 +63,11 @@ public interface OrderMapper {
      */
     @Select("select count(1) from orders where status = #{status}")
     Integer getCountByStatus(Integer status);
+
+    /**
+     * 获取指定状态和小于时间的订单
+     * @return
+     */
+    @Select("select * from orders where status = #{status} and order_time < #{time}")
+    List<Orders> getByStatusTimeLessThan(Integer status, LocalDateTime time);
 }
