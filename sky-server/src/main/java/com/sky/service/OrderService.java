@@ -104,4 +104,10 @@ public interface OrderService {
      * @param id
      */
     void delivery(String id);
+
+    /**
+     * 完成指定订单号订单
+     * @param id
+     */
+    void complete(String id);
 }

@@ -370,6 +370,18 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
     }
 
+    /**
+     * 完成指定订单号订单
+     * @param id
+     */
+    @Override
+    public void complete(String id) {
+        Orders orders = orderMapper.getById(Long.parseLong(id));
+        orders.setStatus(Orders.COMPLETED);
+        orders.setDeliveryTime(LocalDateTime.now());
+        orderMapper.update(orders);
+    }
+
     private void setOrderFields(Orders orders) {
         orders.setOrderTime(LocalDateTime.now()); // 设置订单时间
         orders.setPayStatus(Orders.UN_PAID); // 设置支付状态
