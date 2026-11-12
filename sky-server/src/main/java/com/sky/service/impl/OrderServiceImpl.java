@@ -396,6 +396,30 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
     }
 
+    /**
+     * 用户催单
+     *
+     * @param id
+     */
+    @Override
+    public void reminder(Long id) {
+        // 根据id查询订单
+        Orders orders = orderMapper.getById(id);
+
+        // 校验订单是否存在
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 通过websocket向客户端浏览器推送消息 type orderId content
+        Map map = new HashMap();
+        map.put("type", 2); // 1表示来单提醒 2表示催单
+        map.put("orderId", orders.getId());
+        map.put("content", "订单号" + orders.getNumber());
+        String json = JSON.toJSONString(map); // 发送json字符串
+        webSocketServer.sendToAllClient(json);
+    }
+
     private void setOrderFields(Orders orders) {
         orders.setOrderTime(LocalDateTime.now()); // 设置订单时间
         orders.setPayStatus(Orders.UN_PAID); // 设置支付状态
