@@ -176,4 +176,19 @@
         </where>
     </select>
     
+    <select id="getCountByMap" resultType="int">
+        select count(id) from orders
+        <where>
+            <if test="status!=null">
+                and status = #{status}
+            </if>
+            <if test="begin!=null">
+                and order_time &gt; #{begin}
+            </if>
+            <if test="end!=null">
+                and order_time &lt; #{end}
+            </if>
+        </where>
+    </select>
+    
 </mapper>
