@@ -1,10 +1,12 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -123,16 +126,44 @@ public class ReportServiceImpl implements ReportService {
             map.put("status", Orders.COMPLETED);
             validOrderCountList.add(orderMapper.getCountByMap(map));
         }
-        Integer orderCount = orderCountList.stream().reduce(0, Integer::sum);
-        Integer validOrderCount = validOrderCountList.stream().reduce(0, Integer::sum);
+        Integer orderCount = orderCountList.stream()
+                .reduce(0, Integer::sum); // 统计订单总数
+        Integer validOrderCount = validOrderCountList.stream()
+                .reduce(0, Integer::sum); // 统计有效订单数
 
         return OrderReportVO.builder()
                 .orderCountList(StringUtils.join(orderCountList, ","))
                 .validOrderCountList(StringUtils.join(validOrderCountList, ","))
                 .totalOrderCount(orderCount)
                 .validOrderCount(validOrderCount)
-                .orderCompletionRate((double) validOrderCount / (double) orderCount)
+                .orderCompletionRate(orderCount == 0 ? 0 : (double) validOrderCount / (double) orderCount)
                 .dateList(StringUtils.join(dateList, ","))
+                .build();
+    }
+
+    /**
+     * 统计时间段内销量前十的菜品
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public SalesTop10ReportVO topTen(LocalDate begin, LocalDate end) {
+        Map map = new HashMap();
+        map.put("begin", LocalDateTime.of(begin, LocalTime.MIN));
+        map.put("end", LocalDateTime.of(end, LocalTime.MAX));
+        // 查询销量排名前十的菜品
+        List<GoodsSalesDTO> list = orderMapper.getSalesTop10ByMap(map);
+
+        // 获取菜品名称和销量
+        List nameList = list.stream()
+                .map( GoodsSalesDTO::getName ).collect(Collectors.toList());
+        List numberList = list.stream()
+                .map( GoodsSalesDTO::getNumber ).collect(Collectors.toList());
+
+        return SalesTop10ReportVO.builder()
+                .nameList(StringUtils.join(nameList, ","))
+                .numberList(StringUtils.join(numberList, ","))
                 .build();
     }
 

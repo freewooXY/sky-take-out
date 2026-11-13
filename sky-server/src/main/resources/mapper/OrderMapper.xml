@@ -191,4 +191,25 @@
         </where>
     </select>
     
+    <select id="getSalesTop10ByMap" resultType="com.sky.dto.GoodsSalesDTO">
+        select name, sum(number) number
+        from order_detail
+        where order_id in
+        (
+        select id from orders
+        <where>
+            <if test="begin!=null">
+                and order_time &gt; #{begin}
+            </if>
+            <if test="end!=null">
+                and order_time &lt; #{end}
+            </if>
+        </where>
+        and status = 5
+        )
+        group by name
+        order by number desc
+        limit 10
+    </select>
+    
 </mapper>
