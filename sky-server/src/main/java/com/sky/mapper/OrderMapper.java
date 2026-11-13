@@ -70,4 +70,11 @@ public interface OrderMapper {
      */
     @Select("select * from orders where status = #{status} and order_time < #{time}")
     List<Orders> getByStatusTimeLessThan(Integer status, LocalDateTime time);
+
+    /**
+     * 通过动态条件查询营业额
+     * @param map
+     * @return
+     */
+    Double sumByMap(Map<String, Object> map);
 }

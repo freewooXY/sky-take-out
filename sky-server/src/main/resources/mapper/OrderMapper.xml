@@ -160,5 +160,20 @@
         from orders o left outer join address_book a on a.id = o.address_book_id
         where o.id = #{id}
     </select>
+
+    <select id="sumByMap" resultType="double">
+        select sum(amount) from orders
+        <where>
+            <if test="begin!=null">
+                and order_time &gt; #{begin}
+            </if>
+            <if test="end!=null">
+                and order_time &lt; #{end}
+            </if>
+            <if test="status!=null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
     
 </mapper>
